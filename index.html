@@ -66,17 +66,17 @@
 
   <p class="sentence">
     Esta situación representa una evaluación formativa porque la docente
-    <span id="zone1" class="drop-zone" data-answer="observa"
+    <span id="zone1" class="drop-zone"
           ondragover="event.preventDefault()"
           ondrop="handleDrop(event, 'zone1')"></span>,
-    <span id="zone2" class="drop-zone" data-answer="guía"
+    <span id="zone2" class="drop-zone"
           ondragover="event.preventDefault()"
           ondrop="handleDrop(event, 'zone2')"></span> y
-    <span id="zone3" class="drop-zone" data-answer="retroalimenta"
+    <span id="zone3" class="drop-zone"
           ondragover="event.preventDefault()"
           ondrop="handleDrop(event, 'zone3')"></span>
     durante el proceso, promoviendo la
-    <span id="zone4" class="drop-zone" data-answer="reflexión"
+    <span id="zone4" class="drop-zone"
           ondragover="event.preventDefault()"
           ondrop="handleDrop(event, 'zone4')"></span>
     del estudiante.
@@ -113,33 +113,42 @@
       const id = evt.dataTransfer.getData('text/plain');
       const el = document.getElementById(id);
       const zone = document.getElementById(zoneId);
-      // Si hay ya un elemento, regresarlo
+      // Si ya tiene un elemento, devolverlo
       const prev = zone.querySelector('.draggable');
       if (prev) document.getElementById('draggables').appendChild(prev);
-      // Mover elemento al espacio
       zone.appendChild(el);
     }
 
     function checkAnswers() {
       const feedbackEl = document.getElementById('feedback');
-      let allCorrect = true;
-      for (let i = 1; i <= 4; i++) {
-        const zone = document.getElementById('zone' + i);
-        const answer = zone.getAttribute('data-answer');
-        const child = zone.querySelector('.draggable');
-        const word = child ? child.getAttribute('data-word') : '';
-        if (word !== answer) {
-          allCorrect = false;
-          // devolver incorrecto
-          if (child) document.getElementById('draggables').appendChild(child);
-        }
-      }
-      if (allCorrect) {
+      // Zonas 1-3: orden no importa
+      const zoneIds123 = ['zone1', 'zone2', 'zone3'];
+      const expected123 = ['observa', 'guía', 'retroalimenta'];
+      const placed123 = zoneIds123.map(id => {
+        const z = document.getElementById(id);
+        const child = z.querySelector('.draggable');
+        return child ? child.getAttribute('data-word') : null;
+      });
+      const sortedPlaced = placed123.slice().sort();
+      const sortedExpected = expected123.slice().sort();
+      const formativaOk = JSON.stringify(sortedPlaced) === JSON.stringify(sortedExpected);
+      // Zona 4: fija
+      const zone4 = document.getElementById('zone4');
+      const child4 = zone4.querySelector('.draggable');
+      const sumativaOk = child4 && child4.getAttribute('data-word') === 'reflexión';
+
+      if (formativaOk && sumativaOk) {
         feedbackEl.style.color = 'green';
         feedbackEl.textContent = '¡Excelente! Has completado la frase correctamente.';
       } else {
         feedbackEl.style.color = 'red';
         feedbackEl.textContent = 'Hay errores. Inténtalo de nuevo.';
+        // Devolver todos los colocados incorrectos
+        ['zone1','zone2','zone3','zone4'].forEach(id => {
+          const z = document.getElementById(id);
+          const child = z.querySelector('.draggable');
+          if (child) document.getElementById('draggables').appendChild(child);
+        });
       }
     }
   </script>
