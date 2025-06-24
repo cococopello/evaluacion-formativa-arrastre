@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Completa la Frase - Evaluación Formativa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f9f9f9;
+      color: #333;
+    }
+    .sentence {
+      font-size: 1.2em;
+      line-height: 1.5;
+    }
+    .drop-zone {
+      display: inline-block;
+      min-width: 100px;
+      min-height: 1.5em;
+      border-bottom: 2px dashed #888;
+      padding: 2px 5px;
+      margin: 0 5px;
+      vertical-align: text-bottom;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    .draggables {
+      margin-top: 30px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .draggable {
+      display: inline-block;
+      padding: 6px 10px;
+      margin: 5px;
+      background: #4caf50;
+      color: #fff;
+      border-radius: 4px;
+      cursor: move;
+      user-select: none;
+    }
+    #controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+    #checkBtn {
+      padding: 8px 16px;
+      font-size: 1em;
+      background: #1976d2;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <p class="sentence">
+    Esta situación representa una evaluación formativa porque la docente
+    <span id="zone1" class="drop-zone" data-answer="observa"
+          ondragover="event.preventDefault()"
+          ondrop="handleDrop(event, 'zone1')"></span>,
+    <span id="zone2" class="drop-zone" data-answer="guía"
+          ondragover="event.preventDefault()"
+          ondrop="handleDrop(event, 'zone2')"></span> y
+    <span id="zone3" class="drop-zone" data-answer="retroalimenta"
+          ondragover="event.preventDefault()"
+          ondrop="handleDrop(event, 'zone3')"></span>
+    durante el proceso, promoviendo la
+    <span id="zone4" class="drop-zone" data-answer="reflexión"
+          ondragover="event.preventDefault()"
+          ondrop="handleDrop(event, 'zone4')"></span>
+    del estudiante.
+  </p>
+
+  <div class="draggables" id="draggables">
+    <div id="drag1" class="draggable" data-word="guía" draggable="true"
+         ondragstart="handleDragStart(event)">guía</div>
+    <div id="drag2" class="draggable" data-word="reflexión" draggable="true"
+         ondragstart="handleDragStart(event)">reflexión</div>
+    <div id="drag3" class="draggable" data-word="observa" draggable="true"
+         ondragstart="handleDragStart(event)">observa</div>
+    <div id="drag4" class="draggable" data-word="retroalimenta" draggable="true"
+         ondragstart="handleDragStart(event)">retroalimenta</div>
+    <div id="drag5" class="draggable" data-word="castiga" draggable="true"
+         ondragstart="handleDragStart(event)">castiga</div>
+    <div id="drag6" class="draggable" data-word="anota" draggable="true"
+         ondragstart="handleDragStart(event)">anota</div>
+  </div>
+
+  <div id="controls">
+    <button id="checkBtn" onclick="checkAnswers()">Comprobar</button>
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    function handleDragStart(evt) {
+      evt.dataTransfer.setData('text/plain', evt.target.id);
+      evt.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDrop(evt, zoneId) {
+      evt.preventDefault();
+      const id = evt.dataTransfer.getData('text/plain');
+      const el = document.getElementById(id);
+      const zone = document.getElementById(zoneId);
+      // Si hay ya un elemento, regresarlo
+      const prev = zone.querySelector('.draggable');
+      if (prev) document.getElementById('draggables').appendChild(prev);
+      // Mover elemento al espacio
+      zone.appendChild(el);
+    }
+
+    function checkAnswers() {
+      const feedbackEl = document.getElementById('feedback');
+      let allCorrect = true;
+      for (let i = 1; i <= 4; i++) {
+        const zone = document.getElementById('zone' + i);
+        const answer = zone.getAttribute('data-answer');
+        const child = zone.querySelector('.draggable');
+        const word = child ? child.getAttribute('data-word') : '';
+        if (word !== answer) {
+          allCorrect = false;
+          // devolver incorrecto
+          if (child) document.getElementById('draggables').appendChild(child);
+        }
+      }
+      if (allCorrect) {
+        feedbackEl.style.color = 'green';
+        feedbackEl.textContent = '¡Excelente! Has completado la frase correctamente.';
+      } else {
+        feedbackEl.style.color = 'red';
+        feedbackEl.textContent = 'Hay errores. Inténtalo de nuevo.';
+      }
+    }
+  </script>
+
+</body>
+</html>
